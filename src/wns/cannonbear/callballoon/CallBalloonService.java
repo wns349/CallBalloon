@@ -29,8 +29,8 @@ import android.widget.TextView;
 
 public class CallBalloonService extends Service {
 	private WindowManager windowManager;
-	private ImageView removeImage;
-	private RelativeLayout balloonLayout, removeLayout, chatHeadLayout;
+	private LinearLayout balloonLayout;
+	private RelativeLayout removeLayout, chatHeadLayout;
 	private Point screen = new Point();
 
 	@Override
@@ -79,7 +79,6 @@ public class CallBalloonService extends Service {
 
 		removeLayout = (RelativeLayout) inflater.inflate(
 				R.layout.remove_layout, null);
-		removeImage = (ImageView) removeLayout.findViewById(R.id.img_remove);
 		removeLayout.setVisibility(View.GONE);
 
 		windowManager.addView(removeLayout, params);
@@ -98,12 +97,13 @@ public class CallBalloonService extends Service {
 						| WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
 				PixelFormat.TRANSLUCENT);
 		params.gravity = Gravity.TOP | Gravity.LEFT;
-		params.x = 0;
+		params.x = screen.x / 2 + 1;
 		params.y = 100;
 		windowManager.addView(chatHeadLayout, params);
 
 		chatHeadLayout.setOnTouchListener(onChatHeadTouch);
 
+		resetPosition(params.x);
 	}
 
 	private void resetPosition(int posX) {
@@ -176,7 +176,7 @@ public class CallBalloonService extends Service {
 	private void addBalloonLayout(LayoutInflater inflater, CallLogBean logBean) {
 		final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
 				WindowManager.LayoutParams.MATCH_PARENT,
-				WindowManager.LayoutParams.WRAP_CONTENT,
+				WindowManager.LayoutParams.MATCH_PARENT,
 				WindowManager.LayoutParams.TYPE_PHONE,
 				WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 						| WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
@@ -184,15 +184,25 @@ public class CallBalloonService extends Service {
 				PixelFormat.TRANSLUCENT);
 
 		params.x = 0;
-		params.y = getStatusBarHeight();
+		params.y = 0;
 
-		balloonLayout = (RelativeLayout) inflater.inflate(
+		balloonLayout = (LinearLayout) inflater.inflate(
 				R.layout.balloon_layout, null);
 		ListView listView = (ListView) balloonLayout
 				.findViewById(R.id.log_entry_listview);
-		CallBalloonAdapter adapter = new CallBalloonAdapter(
-				getApplicationContext(), logBean.getLogs());
-		listView.setAdapter(adapter);
+		TextView noHistory = (TextView) balloonLayout
+				.findViewById(R.id.log_entry_no_listview);
+
+		if (logBean.getLogs().length > 0) {
+			CallBalloonAdapter adapter = new CallBalloonAdapter(
+					getApplicationContext(), logBean.getLogs());
+			listView.setAdapter(adapter);
+			listView.setVisibility(View.VISIBLE);
+			noHistory.setVisibility(View.GONE);
+		} else {
+			listView.setVisibility(View.GONE);
+			noHistory.setVisibility(View.VISIBLE);
+		}
 
 		LinearLayout countLayout = (LinearLayout) balloonLayout
 				.findViewById(R.id.count_layout);
@@ -207,6 +217,8 @@ public class CallBalloonService extends Service {
 		missedCount.setText(String.valueOf(logBean.getCountMissed()));
 
 		balloonLayout.setVisibility(View.GONE);
+
+		balloonLayout.setOnTouchListener(onBalloonTouch);
 		windowManager.addView(balloonLayout, params);
 	}
 
@@ -299,6 +311,42 @@ public class CallBalloonService extends Service {
 		return rtnVal;
 	}
 
+	private void hideBalloonLayout() {
+		balloonLayout.setVisibility(View.GONE);
+	}
+
+	View.OnTouchListener onBalloonTouch = new View.OnTouchListener() {
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_UP:
+
+				View balloonContentLayout = balloonLayout
+						.findViewById(R.id.balloon_content_layout);
+
+				Log.d(Const.TAG, String.format("%d/%d/%d/%d/ %.3f / %.3f ",
+						balloonContentLayout.getLeft(),
+						balloonContentLayout.getRight(),
+						balloonContentLayout.getTop(),
+						balloonContentLayout.getBottom(), event.getRawX(),
+						event.getRawY()));
+
+				if (!(balloonContentLayout.getLeft() <= event.getRawX()
+						&& event.getRawX() <= balloonContentLayout.getRight()
+						&& event.getRawY() >= balloonContentLayout.getTop() && event
+						.getRawY() <= balloonContentLayout.getBottom())) {
+					Log.d(Const.TAG, "HERE!!!");
+					hideBalloonLayout();
+				}
+
+				break;
+			}
+			return true;
+		}
+
+	};
+
 	View.OnTouchListener onChatHeadTouch = new View.OnTouchListener() {
 		long startTime;
 		int posX, posY;
@@ -329,6 +377,10 @@ public class CallBalloonService extends Service {
 					if (isOnRemove = isOverRemoveLayout(event, params)) {
 						placeOnRemoveLayout(params);
 					}
+
+					if (isDragged) {
+						hideBalloonLayout();
+					}
 				}
 
 				break;
@@ -342,6 +394,7 @@ public class CallBalloonService extends Service {
 					} else {
 						// Move by drag
 						resetPosition(params.x);
+						hideBalloonLayout();
 					}
 				} else {
 					// Click
@@ -383,14 +436,8 @@ public class CallBalloonService extends Service {
 					.getLayoutParams();
 
 			int width = removeLayout.getWidth();
-			int height = removeLayout.getHeight();
 
-			Log.d(Const.TAG, String.format("%d/%d/%d/%d/%d/%d", newX, newY,
-					width, height, removeParams.x, removeParams.y));
-
-			return (newX >= removeParams.x && newX <= removeParams.x + width
-					&& newY <= removeParams.y && newY >= removeParams.y
-					- height);
+			return (newX >= removeParams.x && newX <= removeParams.x + width && newY >= removeParams.y);
 		}
 
 		private int calculateNewX(float rawX) {

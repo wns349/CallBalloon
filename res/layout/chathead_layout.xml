@@ -5,9 +5,9 @@
 
     <ImageView
         android:id="@+id/img_chathead"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:contentDescription="@string/app_name"
-        android:src="@drawable/call_64" />
+        android:src="@drawable/notice" />
 
 </RelativeLayout>

@@ -15,13 +15,29 @@
         android:src="@drawable/ic_launcher" >
     </ImageView>
 
-    <TextView
-        android:id="@+id/log_entry_text"
+    <LinearLayout
+        android:id="@+id/log_entry_text_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textColor="#000000"
-        android:textSize="16sp" >
-    </TextView>
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/log_entry_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="#000000"
+            android:textSize="16sp" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/log_entry_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="#000000"
+            android:textSize="16sp" >
+        </TextView>
+    </LinearLayout>
 
 </LinearLayout>
