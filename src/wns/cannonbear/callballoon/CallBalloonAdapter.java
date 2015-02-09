@@ -62,9 +62,9 @@ public class CallBalloonAdapter extends ArrayAdapter<LogEntry> {
 		txtDuration.setText(messageLogEntry.getText());
 
 		if (messageLogEntry.getType() == TextBasedSmsColumns.MESSAGE_TYPE_INBOX) {
-			imageView.setImageResource(R.drawable.incoming);
-		} else if (messageLogEntry.getType() == TextBasedSmsColumns.MESSAGE_TYPE_OUTBOX) {
-			imageView.setImageResource(R.drawable.outgoing);
+			imageView.setImageResource(R.drawable.msg_incoming);
+		} else if (messageLogEntry.getType() == TextBasedSmsColumns.MESSAGE_TYPE_SENT) {
+			imageView.setImageResource(R.drawable.msg_outgoing);
 		}
 	}
 

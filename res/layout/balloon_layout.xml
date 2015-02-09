@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:contentDescription="@string/sample_number"
-                android:src="@drawable/missed" />
+                android:src="@drawable/msg_incoming" />
 
             <TextView
                 android:id="@+id/txt_msg_incoming"
@@ -98,7 +98,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:contentDescription="@string/sample_number"
-                android:src="@drawable/missed" />
+                android:src="@drawable/msg_outgoing" />
 
             <TextView
                 android:id="@+id/txt_msg_outgoing"

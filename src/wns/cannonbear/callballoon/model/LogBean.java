@@ -84,7 +84,7 @@ public class LogBean {
 		case TextBasedSmsColumns.MESSAGE_TYPE_INBOX:
 			countMsgCountIncoming++;
 			break;
-		case TextBasedSmsColumns.MESSAGE_TYPE_OUTBOX:
+		case TextBasedSmsColumns.MESSAGE_TYPE_SENT:
 			countMsgCountOutgoing++;
 			break;
 		default:

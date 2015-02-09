@@ -220,6 +220,12 @@ public class CallBalloonService extends Service {
 		TextView missedCount = (TextView) countLayout
 				.findViewById(R.id.txt_missed);
 		missedCount.setText(String.valueOf(logBean.getCallCountMissed()));
+		TextView incomingMsgCount = (TextView) countLayout
+				.findViewById(R.id.txt_msg_incoming);
+		incomingMsgCount.setText(String.valueOf(logBean.getMsgCountIncoming()));
+		TextView outgoingMsgCount = (TextView) countLayout
+				.findViewById(R.id.txt_msg_outgoing);
+		outgoingMsgCount.setText(String.valueOf(logBean.getMsgCountOutgoing()));
 
 		balloonLayout.setVisibility(View.GONE);
 
@@ -278,19 +284,10 @@ public class CallBalloonService extends Service {
 	}
 
 	private LogBean getMessageLogs(LogBean logBean, String incomingNumber) {
-		String uriInbox = "content://sms/inbox";
-		String uriOutbox = "content://sms/outbox";
+		String uriMessage = "content://sms";
 
-		getMessageLogs(logBean, incomingNumber, uriInbox);
-		getMessageLogs(logBean, incomingNumber, uriOutbox);
-
-		return logBean;
-	}
-
-	private LogBean getMessageLogs(LogBean logBean, String incomingNumber,
-			String uriInbox) {
-		Cursor managedCursor = getContentResolver().query(Uri.parse(uriInbox),
-				null, null, null, null);
+		Cursor managedCursor = getContentResolver().query(
+				Uri.parse(uriMessage), null, null, null, null);
 		managedCursor.moveToFirst();
 
 		int idxAddress = managedCursor
