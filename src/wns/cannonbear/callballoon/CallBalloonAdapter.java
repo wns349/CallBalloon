@@ -3,8 +3,11 @@ package wns.cannonbear.callballoon;
 import java.text.SimpleDateFormat;
 
 import wns.cannonbear.callballoon.model.CallLogEntry;
+import wns.cannonbear.callballoon.model.LogEntry;
+import wns.cannonbear.callballoon.model.MessageLogEntry;
 import android.content.Context;
 import android.provider.CallLog;
+import android.provider.Telephony.TextBasedSmsColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +15,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class CallBalloonAdapter extends ArrayAdapter<CallLogEntry> {
+public class CallBalloonAdapter extends ArrayAdapter<LogEntry> {
 	private final Context context;
-	private final CallLogEntry[] values;
+	private final LogEntry[] values;
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat(
 			"yyyy/MM/dd HH:mm:ss");
 
-	public CallBalloonAdapter(Context context, CallLogEntry[] values) {
+	public CallBalloonAdapter(Context context, LogEntry[] values) {
 		super(context, R.layout.log_entry, values);
 		this.context = context;
 		this.values = values;
@@ -38,18 +41,45 @@ public class CallBalloonAdapter extends ArrayAdapter<CallLogEntry> {
 		ImageView imageView = (ImageView) rowView
 				.findViewById(R.id.log_entry_icon);
 
-		txtDate.setText(sdf.format(values[position].getDate()));
-		txtDuration.setText(formatDuration(values[position].getDuration()));
-
-		if (values[position].getType() == CallLog.Calls.INCOMING_TYPE) {
-			imageView.setImageResource(R.drawable.incoming);
-		} else if (values[position].getType() == CallLog.Calls.OUTGOING_TYPE) {
-			imageView.setImageResource(R.drawable.outgoing);
-		} else if (values[position].getType() == CallLog.Calls.MISSED_TYPE) {
-			imageView.setImageResource(R.drawable.missed);
+		LogEntry logEntry = values[position];
+		switch (logEntry.getEntryType()) {
+		case Call:
+			getViewCallLogEntry((CallLogEntry) logEntry, txtDate, txtDuration,
+					imageView);
+			break;
+		case Message:
+			getViewMessageLogEntry((MessageLogEntry) logEntry, txtDate,
+					txtDuration, imageView);
+			break;
 		}
 
 		return rowView;
+	}
+
+	private void getViewMessageLogEntry(MessageLogEntry messageLogEntry,
+			TextView txtDate, TextView txtDuration, ImageView imageView) {
+		txtDate.setText(sdf.format(messageLogEntry.getDate()));
+		txtDuration.setText(messageLogEntry.getText());
+
+		if (messageLogEntry.getType() == TextBasedSmsColumns.MESSAGE_TYPE_INBOX) {
+			imageView.setImageResource(R.drawable.incoming);
+		} else if (messageLogEntry.getType() == TextBasedSmsColumns.MESSAGE_TYPE_OUTBOX) {
+			imageView.setImageResource(R.drawable.outgoing);
+		}
+	}
+
+	private void getViewCallLogEntry(CallLogEntry callLogEntry,
+			TextView txtDate, TextView txtDuration, ImageView imageView) {
+		txtDate.setText(sdf.format(callLogEntry.getDate()));
+		txtDuration.setText(formatDuration(callLogEntry.getDuration()));
+
+		if (callLogEntry.getType() == CallLog.Calls.INCOMING_TYPE) {
+			imageView.setImageResource(R.drawable.incoming);
+		} else if (callLogEntry.getType() == CallLog.Calls.OUTGOING_TYPE) {
+			imageView.setImageResource(R.drawable.outgoing);
+		} else if (callLogEntry.getType() == CallLog.Calls.MISSED_TYPE) {
+			imageView.setImageResource(R.drawable.missed);
+		}
 	}
 
 	private String formatDuration(String duration) {

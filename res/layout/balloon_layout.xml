@@ -27,52 +27,86 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:orientation="horizontal"
-            android:padding="5dp" >
+            android:orientation="horizontal" >
 
             <ImageView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:contentDescription="@string/app_name"
+                android:contentDescription="@string/sample_number"
                 android:src="@drawable/incoming" />
 
             <TextView
                 android:id="@+id/txt_incoming"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="@string/app_name"
+                android:text="@string/sample_number"
                 android:textColor="#000000" />
 
             <ImageView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:contentDescription="@string/app_name"
+                android:contentDescription="@string/sample_number"
                 android:src="@drawable/outgoing" />
 
             <TextView
                 android:id="@+id/txt_outgoing"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="@string/app_name"
+                android:text="@string/sample_number"
                 android:textColor="#000000" />
 
             <ImageView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:contentDescription="@string/app_name"
+                android:contentDescription="@string/sample_number"
                 android:src="@drawable/missed" />
 
             <TextView
                 android:id="@+id/txt_missed"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:text="@string/app_name"
+                android:text="@string/sample_number"
+                android:textColor="#000000" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:contentDescription="@string/sample_number"
+                android:src="@drawable/missed" />
+
+            <TextView
+                android:id="@+id/txt_msg_incoming"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="@string/sample_number"
+                android:textColor="#000000" />
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:contentDescription="@string/sample_number"
+                android:src="@drawable/missed" />
+
+            <TextView
+                android:id="@+id/txt_msg_outgoing"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="@string/sample_number"
                 android:textColor="#000000" />
         </LinearLayout>
 

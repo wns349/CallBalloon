@@ -4,16 +4,19 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import wns.cannonbear.callballoon.model.CallLogBean;
 import wns.cannonbear.callballoon.model.CallLogEntry;
+import wns.cannonbear.callballoon.model.LogBean;
+import wns.cannonbear.callballoon.model.MessageLogEntry;
 import android.app.Service;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.net.Uri;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.provider.CallLog;
+import android.provider.Telephony.TextBasedSmsColumns;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,7 +24,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -42,14 +44,17 @@ public class CallBalloonService extends Service {
 		String incomingNumber = intent.getStringExtra(Const.INCOMING_NUMBER);
 		Log.d(Const.TAG, "Incoming number: " + incomingNumber);
 
-		CallLogBean logBean = getCallLogs(incomingNumber);
+		LogBean logBean = new LogBean(incomingNumber);
+		getCallLogs(logBean, incomingNumber);
+
+		getMessageLogs(logBean, incomingNumber);
 
 		startChathead(logBean);
 
 		return super.onStartCommand(intent, flags, startId);
 	}
 
-	private void startChathead(CallLogBean logBean) {
+	private void startChathead(LogBean logBean) {
 		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 		windowManager.getDefaultDisplay().getSize(screen);
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -173,7 +178,7 @@ public class CallBalloonService extends Service {
 		return statusBarHeight;
 	}
 
-	private void addBalloonLayout(LayoutInflater inflater, CallLogBean logBean) {
+	private void addBalloonLayout(LayoutInflater inflater, LogBean logBean) {
 		final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
 				WindowManager.LayoutParams.MATCH_PARENT,
 				WindowManager.LayoutParams.MATCH_PARENT,
@@ -208,13 +213,13 @@ public class CallBalloonService extends Service {
 				.findViewById(R.id.count_layout);
 		TextView incomingCount = (TextView) countLayout
 				.findViewById(R.id.txt_incoming);
-		incomingCount.setText(String.valueOf(logBean.getCountIncoming()));
+		incomingCount.setText(String.valueOf(logBean.getCallCountIncoming()));
 		TextView outgoingCount = (TextView) countLayout
 				.findViewById(R.id.txt_outgoing);
-		outgoingCount.setText(String.valueOf(logBean.getCountOutgoing()));
+		outgoingCount.setText(String.valueOf(logBean.getCallCountOutgoing()));
 		TextView missedCount = (TextView) countLayout
 				.findViewById(R.id.txt_missed);
-		missedCount.setText(String.valueOf(logBean.getCountMissed()));
+		missedCount.setText(String.valueOf(logBean.getCallCountMissed()));
 
 		balloonLayout.setVisibility(View.GONE);
 
@@ -272,7 +277,48 @@ public class CallBalloonService extends Service {
 		return null;
 	}
 
-	private CallLogBean getCallLogs(String incomingNumber) {
+	private LogBean getMessageLogs(LogBean logBean, String incomingNumber) {
+		String uriInbox = "content://sms/inbox";
+		String uriOutbox = "content://sms/outbox";
+
+		getMessageLogs(logBean, incomingNumber, uriInbox);
+		getMessageLogs(logBean, incomingNumber, uriOutbox);
+
+		return logBean;
+	}
+
+	private LogBean getMessageLogs(LogBean logBean, String incomingNumber,
+			String uriInbox) {
+		Cursor managedCursor = getContentResolver().query(Uri.parse(uriInbox),
+				null, null, null, null);
+		managedCursor.moveToFirst();
+
+		int idxAddress = managedCursor
+				.getColumnIndex(TextBasedSmsColumns.ADDRESS);
+		int idxType = managedCursor.getColumnIndex(TextBasedSmsColumns.TYPE);
+		int idxDate = managedCursor.getColumnIndex(TextBasedSmsColumns.DATE);
+		int idxBody = managedCursor.getColumnIndex(TextBasedSmsColumns.BODY);
+
+		while (managedCursor.moveToNext()) {
+			String address = managedCursor.getString(idxAddress);
+
+			String stripped = extractNumber(address);
+			if (!stripped.isEmpty()
+					&& stripped.equals(extractNumber(incomingNumber))) {
+				int type = Integer.parseInt(managedCursor.getString(idxType));
+				Date date = new Date(Long.valueOf(managedCursor
+						.getString(idxDate)));
+				String body = managedCursor.getString(idxBody);
+
+				logBean.addLogEntry(new MessageLogEntry(type, date, body));
+			}
+		}
+		managedCursor.close();
+
+		return logBean;
+	}
+
+	private LogBean getCallLogs(LogBean logBean, String incomingNumber) {
 		Cursor managedCursor = getContentResolver().query(
 				CallLog.Calls.CONTENT_URI, null, null, null, null);
 		int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
@@ -280,7 +326,6 @@ public class CallBalloonService extends Service {
 		int date = managedCursor.getColumnIndex(CallLog.Calls.DATE);
 		int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
 
-		CallLogBean logBean = new CallLogBean();
 		while (managedCursor.moveToNext()) {
 			String phoneNumber = managedCursor.getString(number);
 
@@ -292,8 +337,8 @@ public class CallBalloonService extends Service {
 						.getString(date)));
 				String callDuration = managedCursor.getString(duration);
 
-				logBean.addCallLogEntry(new CallLogEntry(phoneNumber, callType,
-						callDate, callDuration));
+				logBean.addLogEntry(new CallLogEntry(callType, callDate,
+						callDuration));
 			}
 		}
 		managedCursor.close();
