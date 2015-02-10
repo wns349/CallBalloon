@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 
-public class NumberPickerPreference extends DialogPreference {
+public class NumOfLogsPreference extends DialogPreference {
 
 	public static final int MAX_VALUE = 100;
 	public static final int MIN_VALUE = 0;
@@ -18,11 +18,11 @@ public class NumberPickerPreference extends DialogPreference {
 	private NumberPicker picker;
 	private int value;
 
-	public NumberPickerPreference(Context context, AttributeSet attrs) {
+	public NumOfLogsPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 
-	public NumberPickerPreference(Context context, AttributeSet attrs,
+	public NumOfLogsPreference(Context context, AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 	}

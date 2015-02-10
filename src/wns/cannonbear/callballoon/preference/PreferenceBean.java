@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class PreferenceBean {
-	public static final float TOUCH_POSITION_THRESHOLD = 15.0f;
-
 	private int numOfLogsToDisplay;
 
 	private int longTouchDelay;

@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="@string/pref_general_settings" >
-        <wns.cannonbear.callballoon.preference.NumberPickerPreference
+        <wns.cannonbear.callballoon.preference.NumOfLogsPreference
             android:defaultValue="@string/pref_num_logs_d"
             android:key="@string/pref_num_logs"
             android:summary="@string/pref_num_logs_s"

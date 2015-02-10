@@ -8,6 +8,8 @@
     <string name="sample_number">000</string>
     <string name="hidden">Hidden</string>
     <string name="contact">Twitter: \@wns349</string>
+    <string name="success">Success</string>
+    <string name="failed">Failed</string>
 
     <!-- Pref related -->
     <string name="pref_general_settings">General Settings</string>

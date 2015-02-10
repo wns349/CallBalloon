@@ -21,6 +21,17 @@ public class MainActivity extends Activity {
 
 			// Load the preferences from an XML resource
 			addPreferencesFromResource(R.xml.preferences);
+
+			// // Append finally category
+			// PreferenceCategory finallyCategory = (PreferenceCategory)
+			// findPreference(getString(R.string.pref_finally));
+			// // Add reset preference
+			// ResetPreference resetPreference = new ResetPreference(
+			// getActivity(), null);
+			// resetPreference.setKey(getString(R.string.pref_reset));
+			// resetPreference.setTitle(getString(R.string.pref_reset_t));
+			// resetPreference.setSummary(getString(R.string.pref_reset_s));
+			// finallyCategory.addPreference(resetPreference);
 		}
 	}
 
