@@ -7,14 +7,17 @@ import java.util.regex.Pattern;
 import wns.cannonbear.callballoon.model.CallLogEntry;
 import wns.cannonbear.callballoon.model.LogBean;
 import wns.cannonbear.callballoon.model.MessageLogEntry;
+import wns.cannonbear.callballoon.preference.PreferenceBean;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.provider.CallLog;
 import android.provider.Telephony.TextBasedSmsColumns;
 import android.util.Log;
@@ -34,6 +37,7 @@ public class CallBalloonService extends Service {
 	private LinearLayout balloonLayout;
 	private RelativeLayout removeLayout, chatHeadLayout;
 	private Point screen = new Point();
+	private PreferenceBean pref;
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -41,17 +45,29 @@ public class CallBalloonService extends Service {
 			stopSelf();
 		}
 
+		pref = loadPreference();
+
 		String incomingNumber = intent.getStringExtra(Const.INCOMING_NUMBER);
 		Log.d(Const.TAG, "Incoming number: " + incomingNumber);
 
-		LogBean logBean = new LogBean(incomingNumber);
+		LogBean logBean = new LogBean(pref, incomingNumber);
+
 		getCallLogs(logBean, incomingNumber);
 
-		getMessageLogs(logBean, incomingNumber);
+		if (pref.isUseSMS()) {
+			getMessageLogs(logBean, incomingNumber);
+		}
 
 		startChathead(logBean);
 
 		return super.onStartCommand(intent, flags, startId);
+	}
+
+	private PreferenceBean loadPreference() {
+		SharedPreferences pref = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+
+		return new PreferenceBean(getApplicationContext(), pref);
 	}
 
 	private void startChathead(LogBean logBean) {
@@ -305,7 +321,9 @@ public class CallBalloonService extends Service {
 				int type = Integer.parseInt(managedCursor.getString(idxType));
 				Date date = new Date(Long.valueOf(managedCursor
 						.getString(idxDate)));
-				String body = managedCursor.getString(idxBody);
+
+				String body = pref.isShowSMSContent() ? managedCursor
+						.getString(idxBody) : getString(R.string.hidden);
 
 				logBean.addLogEntry(new MessageLogEntry(type, date, body));
 			}
@@ -378,7 +396,6 @@ public class CallBalloonService extends Service {
 						&& event.getRawX() <= balloonContentLayout.getRight()
 						&& event.getRawY() >= balloonContentLayout.getTop() && event
 						.getRawY() <= balloonContentLayout.getBottom())) {
-					Log.d(Const.TAG, "HERE!!!");
 					hideBalloonLayout();
 				}
 
@@ -409,7 +426,8 @@ public class CallBalloonService extends Service {
 				startTime = System.currentTimeMillis();
 				break;
 			case MotionEvent.ACTION_MOVE:
-				if (System.currentTimeMillis() - startTime >= Const.LONG_TOUCH_THRESHOLD) {
+				if (System.currentTimeMillis() - startTime >= pref
+						.getLongTouchDelay()) {
 					isDragged = moveView(event, params, false);
 
 					if (removeLayout.getVisibility() != View.VISIBLE) {
@@ -498,8 +516,10 @@ public class CallBalloonService extends Service {
 			int newY = calculateNewY(event.getRawY());
 
 			if (ignoreTrivialMove
-					&& Math.abs(newX - params.x) < Const.TOUCH_POSITION_THRESHOLD
-					&& Math.abs(newY - params.y) < Const.TOUCH_POSITION_THRESHOLD) {
+					&& Math.abs(newX - params.x) < pref
+							.getTouchDetectionThreshold()
+					&& Math.abs(newY - params.y) < pref
+							.getTouchDetectionThreshold()) {
 				return false; // Do nothing, if move is so trivial
 			} else {
 				params.x = newX;

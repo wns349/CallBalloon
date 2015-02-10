@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/pref_general_settings" >
+        <wns.cannonbear.callballoon.preference.NumberPickerPreference
+            android:defaultValue="@string/pref_num_logs_d"
+            android:key="@string/pref_num_logs"
+            android:summary="@string/pref_num_logs_s"
+            android:title="@string/pref_num_logs_t" />
+    </PreferenceCategory>
+
+    <!--  -->
+    <PreferenceCategory android:title="@string/pref_sms_settings" >
+        <CheckBoxPreference
+            android:defaultValue="@string/pref_use_sms_d"
+            android:key="@string/pref_use_sms"
+            android:summary="@string/pref_use_sms_s"
+            android:title="@string/pref_use_sms_t" />
+        <CheckBoxPreference
+            android:defaultValue="@string/pref_show_sms_content_d"
+            android:key="@string/pref_show_sms_content"
+            android:summary="@string/pref_show_sms_content_s"
+            android:title="@string/pref_show_sms_content_t" />
+    </PreferenceCategory>
+
+    <!--  -->
+    <PreferenceCategory android:title="@string/pref_balloon_settings" >
+        <wns.cannonbear.callballoon.preference.LongTouchPreference
+            android:defaultValue="@string/pref_balloon_long_touch_interval_d"
+            android:key="@string/pref_balloon_long_touch_interval"
+            android:summary="@string/pref_balloon_long_touch_interval_s"
+            android:title="@string/pref_balloon_long_touch_interval_t" />
+
+        <wns.cannonbear.callballoon.preference.TouchDetectionPreference
+            android:defaultValue="@string/pref_balloon_touch_detection_d"
+            android:key="@string/pref_balloon_touch_detection"
+            android:summary="@string/pref_balloon_touch_detection_s"
+            android:title="@string/pref_balloon_touch_detection_t" />
+    </PreferenceCategory>
+
+    <!--  -->
+    <PreferenceCategory android:title="@string/pref_finally" >
+        <wns.cannonbear.callballoon.preference.ResetPreference
+            android:id="@+id/pref_reset"
+            android:key="@string/pref_reset"
+            android:summary="@string/pref_reset_s"
+            android:title="@string/pref_reset_t" />
+
+        <wns.cannonbear.callballoon.preference.ContactPreference
+            android:key="@string/pref_contact"
+            android:summary="@string/pref_contact_s"
+            android:title="@string/pref_contact_t" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

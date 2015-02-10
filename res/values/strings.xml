@@ -5,7 +5,40 @@
     <string name="hello_world">Hello world!</string>
     <string name="listview_header">Call Logs</string>
     <string name="no_history">No History</string>
-    <string name="pref_max_call_log_history">Max Call Log Count</string>
     <string name="sample_number">000</string>
+    <string name="hidden">Hidden</string>
+    <string name="contact">Twitter: \@wns349</string>
+
+    <!-- Pref related -->
+    <string name="pref_general_settings">General Settings</string>
+    <string name="pref_sms_settings">SMS Settings</string>
+    <string name="pref_balloon_settings">Balloon Settings</string>
+    <string name="pref_finally">Finally</string>
+    <string name="pref_num_logs">pref_num_logs</string>
+    <string name="pref_num_logs_t">Number of logs</string>
+    <string name="pref_num_logs_s">Number of logs to display</string>
+    <string name="pref_num_logs_d">5</string>
+    <string name="pref_use_sms">pref_use_sms</string>
+    <string name="pref_use_sms_t">Count SMS</string>
+    <string name="pref_use_sms_s">Counts received and sent SMS</string>
+    <string name="pref_use_sms_d">true</string>
+    <string name="pref_show_sms_content">pref_show_sms_content</string>
+    <string name="pref_show_sms_content_t">Display content</string>
+    <string name="pref_show_sms_content_s">Displays content of the SMS</string>
+    <string name="pref_show_sms_content_d">true</string>
+    <string name="pref_balloon_long_touch_interval">pref_balloon_long_touch_interval</string>
+    <string name="pref_balloon_long_touch_interval_t">Long touch detection</string>
+    <string name="pref_balloon_long_touch_interval_s">Long touch detection interval in milliseconds</string>
+    <string name="pref_balloon_long_touch_interval_d">500</string>
+    <string name="pref_balloon_touch_detection">pref_balloon_touch_detection</string>
+    <string name="pref_balloon_touch_detection_t">Touch detection area threshold</string>
+    <string name="pref_balloon_touch_detection_s">To enhance touch detection</string>
+    <string name="pref_balloon_touch_detection_d">15</string>
+    <string name="pref_reset">pref_reset</string>
+    <string name="pref_reset_s">Reset to default values</string>
+    <string name="pref_reset_t">Reset</string>
+    <string name="pref_contact">pref_contact</string>
+    <string name="pref_contact_t">Contact</string>
+    <string name="pref_contact_s">Twitter: \@wns349\nGithub:http://www.github.com/wns349</string>
 
 </resources>

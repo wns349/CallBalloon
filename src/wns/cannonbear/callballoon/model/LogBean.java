@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import wns.cannonbear.callballoon.Const;
 import wns.cannonbear.callballoon.model.LogEntry.EntryType;
+import wns.cannonbear.callballoon.preference.PreferenceBean;
 import android.provider.CallLog;
 import android.provider.Telephony.TextBasedSmsColumns;
 
@@ -21,8 +21,10 @@ public class LogBean {
 	private int countMsgCountOutgoing;
 
 	private final String incomingNumberRaw;
+	private final PreferenceBean pref;
 
-	public LogBean(String incomingNumberRaw) {
+	public LogBean(PreferenceBean pref, String incomingNumberRaw) {
+		this.pref = pref;
 		this.incomingNumberRaw = incomingNumberRaw;
 
 		this.logs = new ArrayList<LogEntry>();
@@ -37,7 +39,7 @@ public class LogBean {
 		if (entry != null) {
 			boolean addLogEntry = false;
 
-			if (this.logs.size() >= Const.MAX_LOG_HISTORY) {
+			if (this.logs.size() >= pref.getNumOfLogsToDisplay()) {
 				// Need to remove one with the oldest date
 				// First sort to find out the oldest one
 				sortLogs();
