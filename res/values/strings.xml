@@ -47,5 +47,7 @@
     <string name="pref_demo">pref_demo</string>
     <string name="pref_demo_t">Demo</string>
     <string name="pref_demo_s">Bring up the balloon for demonstration</string>
+    <string name="pref_version">pref_version</string>
+    <string name="pref_version_t">Version</string>
 
 </resources>

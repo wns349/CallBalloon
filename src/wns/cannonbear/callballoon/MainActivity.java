@@ -4,11 +4,13 @@ import wns.cannonbear.callballoon.preference.PreferenceBean;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class MainActivity extends Activity {
 
@@ -57,6 +59,19 @@ public class MainActivity extends Activity {
 			updateShowSMSContent(prefBean,
 					findPreference(getString(R.string.pref_show_sms_content)));
 
+			updateVersion();
+
+		}
+
+		private void updateVersion() {
+			Preference p = findPreference(getString(R.string.pref_version));
+			try {
+				p.setSummary(getActivity().getPackageManager().getPackageInfo(
+						getActivity().getPackageName(), 0).versionName);
+			} catch (NameNotFoundException e) {
+				Log.e(Const.TAG, e.getLocalizedMessage(), e);
+				p.setSummary(Const.COUNT_UNKNOWN);
+			}
 		}
 
 		private void updateUseSMS(PreferenceBean prefBean, Preference p) {

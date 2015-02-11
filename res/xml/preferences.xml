@@ -40,17 +40,20 @@
 
     <!--  -->
     <PreferenceCategory android:title="@string/pref_finally" >
-         <wns.cannonbear.callballoon.preference.DemoPreference
+        <wns.cannonbear.callballoon.preference.DemoPreference
             android:key="@string/pref_demo"
             android:summary="@string/pref_demo_s"
             android:title="@string/pref_demo_t" />
-         
+
         <wns.cannonbear.callballoon.preference.ResetPreference
             android:id="@+id/pref_reset"
             android:key="@string/pref_reset"
             android:summary="@string/pref_reset_s"
             android:title="@string/pref_reset_t" />
 
+        <Preference
+            android:key="@string/pref_version"
+            android:title="@string/pref_version_t" />
         <Preference
             android:key="@string/pref_contact"
             android:summary="@string/pref_contact_s"
