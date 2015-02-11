@@ -10,6 +10,8 @@
     <string name="contact">Twitter: \@wns349</string>
     <string name="success">Success</string>
     <string name="failed">Failed</string>
+    <string name="unit_ms">ms</string>
+    <string name="confirmation">Are you sure?</string>
 
     <!-- Pref related -->
     <string name="pref_general_settings">General Settings</string>
@@ -42,5 +44,8 @@
     <string name="pref_contact">pref_contact</string>
     <string name="pref_contact_t">Contact</string>
     <string name="pref_contact_s">Twitter: \@wns349\nGithub:http://www.github.com/wns349</string>
+    <string name="pref_demo">pref_demo</string>
+    <string name="pref_demo_t">Demo</string>
+    <string name="pref_demo_s">Bring up the balloon for demonstration</string>
 
 </resources>

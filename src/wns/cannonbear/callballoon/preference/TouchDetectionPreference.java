@@ -1,5 +1,6 @@
 package wns.cannonbear.callballoon.preference;
 
+import wns.cannonbear.callballoon.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
@@ -13,11 +14,9 @@ import android.widget.NumberPicker;
 public class TouchDetectionPreference extends DialogPreference {
 
 	public static final int MAX_VALUE = 100;
-	public static final int DEFAULT_VALUE = 15;
 	public static final int MIN_VALUE = 0;
 
 	private NumberPicker picker;
-	private int value;
 
 	public TouchDetectionPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -72,11 +71,11 @@ public class TouchDetectionPreference extends DialogPreference {
 	}
 
 	public void setValue(int value) {
-		this.value = value;
-		persistInt(this.value);
+		persistInt(value);
 	}
 
 	public int getValue() {
-		return this.value;
+		return getPersistedInt(Integer.parseInt(getContext().getString(
+				R.string.pref_balloon_touch_detection_d)));
 	}
 }

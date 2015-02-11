@@ -31,13 +31,13 @@ public class ResetPreference extends DialogPreference {
 				ViewGroup.LayoutParams.WRAP_CONTENT);
 		layoutParams.gravity = Gravity.CENTER;
 
-		TextView txtContact = new TextView(getContext());
-		txtContact.setLayoutParams(layoutParams);
+		TextView txtConfirm = new TextView(getContext());
+		txtConfirm.setLayoutParams(layoutParams);
 
-		txtContact.setText(getContext().getString(R.string.pref_reset_s));
+		txtConfirm.setText(getContext().getString(R.string.confirmation));
 
 		FrameLayout dialogView = new FrameLayout(getContext());
-		dialogView.addView(txtContact);
+		dialogView.addView(txtConfirm);
 
 		setPositiveButtonText(android.R.string.ok);
 		setNegativeButtonText(android.R.string.cancel);
@@ -61,6 +61,9 @@ public class ResetPreference extends DialogPreference {
 		editor.clear();
 		editor.commit();
 
+		// Save time, just to notify listener
+		persistLong(System.currentTimeMillis());
+		
 		Toast.makeText(getContext(), getContext().getString(R.string.success),
 				Toast.LENGTH_SHORT).show();
 		;

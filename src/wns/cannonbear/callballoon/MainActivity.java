@@ -1,8 +1,14 @@
 package wns.cannonbear.callballoon;
 
+import wns.cannonbear.callballoon.preference.PreferenceBean;
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 
 public class MainActivity extends Activity {
 
@@ -12,52 +18,113 @@ public class MainActivity extends Activity {
 		// Display the fragment as the main content.
 		getFragmentManager().beginTransaction()
 				.replace(android.R.id.content, new SettingsFragment()).commit();
+
 	}
 
-	public static class SettingsFragment extends PreferenceFragment {
+	public static class SettingsFragment extends PreferenceFragment implements
+			OnSharedPreferenceChangeListener {
+
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
 
+			PreferenceManager.getDefaultSharedPreferences(getActivity())
+					.registerOnSharedPreferenceChangeListener(this);
+
 			// Load the preferences from an XML resource
 			addPreferencesFromResource(R.xml.preferences);
 
-			// // Append finally category
-			// PreferenceCategory finallyCategory = (PreferenceCategory)
-			// findPreference(getString(R.string.pref_finally));
-			// // Add reset preference
-			// ResetPreference resetPreference = new ResetPreference(
-			// getActivity(), null);
-			// resetPreference.setKey(getString(R.string.pref_reset));
-			// resetPreference.setTitle(getString(R.string.pref_reset_t));
-			// resetPreference.setSummary(getString(R.string.pref_reset_s));
-			// finallyCategory.addPreference(resetPreference);
+			updatePreferences();
 		}
+
+		private void updatePreferences() {
+			PreferenceBean prefBean = new PreferenceBean(getActivity());
+
+			updateLongTouchDelaySummary(
+					prefBean,
+					findPreference(getString(R.string.pref_balloon_long_touch_interval)));
+
+			updateTouchDetection(
+					prefBean,
+					findPreference(getString(R.string.pref_balloon_touch_detection)));
+
+			updateNumberOfLogs(prefBean,
+					findPreference(getString(R.string.pref_num_logs)));
+
+			updateUseSMS(prefBean,
+					findPreference(getString(R.string.pref_use_sms)));
+
+			updateShowSMSContent(prefBean,
+					findPreference(getString(R.string.pref_show_sms_content)));
+
+		}
+
+		private void updateUseSMS(PreferenceBean prefBean, Preference p) {
+			((CheckBoxPreference) p).setChecked(prefBean.isUseSMS());
+		}
+
+		private void updateShowSMSContent(PreferenceBean prefBean, Preference p) {
+			((CheckBoxPreference) p).setChecked(prefBean.isShowSMSContent());
+		}
+
+		private void updateNumberOfLogs(PreferenceBean prefBean, Preference p) {
+			p.setSummary(String.valueOf(prefBean.getNumOfLogsToDisplay()));
+		}
+
+		private void updateLongTouchDelaySummary(PreferenceBean prefBean,
+				Preference p) {
+			p.setSummary(String.valueOf(prefBean.getLongTouchDelay())
+					+ getString(R.string.unit_ms));
+		}
+
+		private void updateTouchDetection(PreferenceBean prefBean, Preference p) {
+			p.setSummary(String.valueOf(prefBean.getTouchDetectionThreshold()));
+		}
+
+		@Override
+		public void onSharedPreferenceChanged(
+				SharedPreferences sharedPreferences, String key) {
+			Preference prefView = findPreference(key);
+
+			PreferenceBean prefBean = new PreferenceBean(getActivity(),
+					sharedPreferences);
+
+			if (prefView == null) {
+				return;
+			}
+
+			if (prefView.getKey().equals(
+					getString(R.string.pref_balloon_long_touch_interval))) {
+				updateLongTouchDelaySummary(prefBean, prefView);
+			} else if (prefView.getKey().equals(
+					getString(R.string.pref_balloon_touch_detection))) {
+				updateTouchDetection(prefBean, prefView);
+			} else if (prefView.getKey().equals(
+					getString(R.string.pref_num_logs))) {
+				updateNumberOfLogs(prefBean, prefView);
+			} else if (prefView.getKey().equals(
+					getString(R.string.pref_use_sms))) {
+				updateUseSMS(prefBean, prefView);
+			} else if (prefView.getKey().equals(
+					getString(R.string.pref_show_sms_content))) {
+				updateShowSMSContent(prefBean, prefView);
+			} else if (prefView.getKey().equals(getString(R.string.pref_reset))) {
+				updateLongTouchDelaySummary(
+						prefBean,
+						findPreference(getString(R.string.pref_balloon_long_touch_interval)));
+				updateTouchDetection(
+						prefBean,
+						findPreference(getString(R.string.pref_balloon_touch_detection)));
+				updateNumberOfLogs(prefBean,
+						findPreference(getString(R.string.pref_num_logs)));
+				updateUseSMS(prefBean,
+						findPreference(getString(R.string.pref_use_sms)));
+				updateShowSMSContent(
+						prefBean,
+						findPreference(getString(R.string.pref_show_sms_content)));
+			}
+		}
+
 	}
 
-	// @Override
-	// protected void onCreate(Bundle savedInstanceState) {
-	// super.onCreate(savedInstanceState);
-	// setContentView(R.layout.activity_main);
-	//
-	// Log.d(Const.TAG, "Hello there");
-	// // startService(new Intent(this, ChatHeadService.class));
-	//
-	// final EditText t = (EditText) findViewById(R.id.editText1);
-	//
-	// t.setText("1234");
-	// Button btn = (Button) findViewById(R.id.button1);
-	// btn.setOnClickListener(new View.OnClickListener() {
-	//
-	// @Override
-	// public void onClick(View v) {
-	// Intent i = new Intent(getApplicationContext(),
-	// CallBalloonService.class);
-	// i.putExtra(Const.INCOMING_NUMBER, t.getText().toString());
-	//
-	// startService(i);
-	// }
-	//
-	// });
-	// }
 }

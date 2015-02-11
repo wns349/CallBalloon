@@ -3,6 +3,7 @@ package wns.cannonbear.callballoon.preference;
 import wns.cannonbear.callballoon.R;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class PreferenceBean {
 	private int numOfLogsToDisplay;
@@ -11,10 +12,14 @@ public class PreferenceBean {
 	private int touchDetectionThreshold;
 
 	private boolean useSMS;
+
 	private boolean showSMSContent;
 
-	public PreferenceBean(Context context, SharedPreferences pref) {
+	public PreferenceBean(Context context) {
+		this(context, PreferenceManager.getDefaultSharedPreferences(context));
+	}
 
+	public PreferenceBean(Context context, SharedPreferences pref) {
 		setNumOfLogsToDisplay((pref.getInt(
 				context.getString(R.string.pref_num_logs),
 				Integer.parseInt(context.getString(R.string.pref_num_logs_d)))));
@@ -39,7 +44,6 @@ public class PreferenceBean {
 				.getString(R.string.pref_show_sms_content), Boolean
 				.parseBoolean(context
 						.getString(R.string.pref_show_sms_content_d))));
-
 	}
 
 	public int getNumOfLogsToDisplay() {
@@ -80,5 +84,14 @@ public class PreferenceBean {
 
 	public void setTouchDetectionThreshold(int touchDetectionThreshold) {
 		this.touchDetectionThreshold = touchDetectionThreshold;
+	}
+
+	@Override
+	public String toString() {
+		return "PreferenceBean [numOfLogsToDisplay=" + numOfLogsToDisplay
+				+ ", longTouchDelay=" + longTouchDelay
+				+ ", touchDetectionThreshold=" + touchDetectionThreshold
+				+ ", useSMS=" + useSMS + ", showSMSContent=" + showSMSContent
+				+ "]";
 	}
 }

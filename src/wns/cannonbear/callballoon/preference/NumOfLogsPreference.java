@@ -1,5 +1,6 @@
 package wns.cannonbear.callballoon.preference;
 
+import wns.cannonbear.callballoon.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
@@ -16,7 +17,6 @@ public class NumOfLogsPreference extends DialogPreference {
 	public static final int MIN_VALUE = 0;
 
 	private NumberPicker picker;
-	private int value;
 
 	public NumOfLogsPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -71,11 +71,11 @@ public class NumOfLogsPreference extends DialogPreference {
 	}
 
 	public void setValue(int value) {
-		this.value = value;
-		persistInt(this.value);
+		persistInt(value);
 	}
 
 	public int getValue() {
-		return this.value;
+		return getPersistedInt(Integer.parseInt(getContext().getString(
+				R.string.pref_num_logs_d)));
 	}
 }

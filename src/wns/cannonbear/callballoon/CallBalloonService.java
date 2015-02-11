@@ -10,14 +10,12 @@ import wns.cannonbear.callballoon.model.MessageLogEntry;
 import wns.cannonbear.callballoon.preference.PreferenceBean;
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.CountDownTimer;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.provider.CallLog;
 import android.provider.Telephony.TextBasedSmsColumns;
 import android.util.Log;
@@ -45,7 +43,8 @@ public class CallBalloonService extends Service {
 			stopSelf();
 		}
 
-		pref = loadPreference();
+		pref = new PreferenceBean(getApplicationContext());
+		Log.d(Const.TAG, "Preference: " + pref.toString());
 
 		String incomingNumber = intent.getStringExtra(Const.INCOMING_NUMBER);
 		Log.d(Const.TAG, "Incoming number: " + incomingNumber);
@@ -61,13 +60,6 @@ public class CallBalloonService extends Service {
 		startChathead(logBean);
 
 		return super.onStartCommand(intent, flags, startId);
-	}
-
-	private PreferenceBean loadPreference() {
-		SharedPreferences pref = PreferenceManager
-				.getDefaultSharedPreferences(getApplicationContext());
-
-		return new PreferenceBean(getApplicationContext(), pref);
 	}
 
 	private void startChathead(LogBean logBean) {
@@ -238,10 +230,12 @@ public class CallBalloonService extends Service {
 		missedCount.setText(String.valueOf(logBean.getCallCountMissed()));
 		TextView incomingMsgCount = (TextView) countLayout
 				.findViewById(R.id.txt_msg_incoming);
-		incomingMsgCount.setText(String.valueOf(logBean.getMsgCountIncoming()));
+		incomingMsgCount.setText(pref.isUseSMS() ? String.valueOf(logBean
+				.getMsgCountIncoming()) : Const.COUNT_UNKNOWN);
 		TextView outgoingMsgCount = (TextView) countLayout
 				.findViewById(R.id.txt_msg_outgoing);
-		outgoingMsgCount.setText(String.valueOf(logBean.getMsgCountOutgoing()));
+		outgoingMsgCount.setText(pref.isUseSMS() ? String.valueOf(logBean
+				.getMsgCountOutgoing()) : Const.COUNT_UNKNOWN);
 
 		balloonLayout.setVisibility(View.GONE);
 

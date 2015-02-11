@@ -1,23 +1,20 @@
 package wns.cannonbear.callballoon.preference;
 
+import wns.cannonbear.callballoon.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 
 public class LongTouchPreference extends DialogPreference {
 
 	public static final int MAX_VALUE = 1500;
-	public static final int DEFAULT_VALUE = 500;
 	public static final int MIN_VALUE = 10;
 
 	private NumberPicker picker;
-	private int value;
 
 	public LongTouchPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -30,18 +27,12 @@ public class LongTouchPreference extends DialogPreference {
 
 	@Override
 	protected View onCreateDialogView() {
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT);
-		layoutParams.gravity = Gravity.CENTER;
+		View v = LayoutInflater.from(getContext()).inflate(
+				R.layout.diag_long_touch, null);
 
-		picker = new NumberPicker(getContext());
-		picker.setLayoutParams(layoutParams);
+		picker = (NumberPicker) v.findViewById(R.id.number_picker);
 
-		FrameLayout dialogView = new FrameLayout(getContext());
-		dialogView.addView(picker);
-
-		return dialogView;
+		return v;
 	}
 
 	@Override
@@ -72,11 +63,12 @@ public class LongTouchPreference extends DialogPreference {
 	}
 
 	public void setValue(int value) {
-		this.value = value;
-		persistInt(this.value);
+		persistInt(value);
 	}
 
 	public int getValue() {
-		return this.value;
+		return getPersistedInt(Integer.parseInt(getContext().getString(
+				R.string.pref_balloon_long_touch_interval_d)));
 	}
+
 }
