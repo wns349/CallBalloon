@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import wns.cannonbear.callballoon.layout.BalloonLayout;
 import wns.cannonbear.callballoon.model.CallLogEntry;
 import wns.cannonbear.callballoon.model.LogBean;
 import wns.cannonbear.callballoon.model.MessageLogEntry;
@@ -20,6 +21,7 @@ import android.provider.CallLog;
 import android.provider.Telephony.TextBasedSmsColumns;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,7 +34,7 @@ import android.widget.TextView;
 
 public class CallBalloonService extends Service {
 	private WindowManager windowManager;
-	private LinearLayout balloonLayout;
+	private BalloonLayout balloonLayout;
 	private RelativeLayout removeLayout, chatHeadLayout;
 	private Point screen = new Point();
 	private PreferenceBean pref;
@@ -191,16 +193,13 @@ public class CallBalloonService extends Service {
 				WindowManager.LayoutParams.MATCH_PARENT,
 				WindowManager.LayoutParams.MATCH_PARENT,
 				WindowManager.LayoutParams.TYPE_PHONE,
-				WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-						| WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-						| WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
 				PixelFormat.TRANSLUCENT);
 
 		params.x = 0;
 		params.y = 0;
 
-		balloonLayout = (LinearLayout) inflater.inflate(
-				R.layout.balloon_layout, null);
+		balloonLayout = new BalloonLayout(getApplicationContext(), null);
 		ListView listView = (ListView) balloonLayout
 				.findViewById(R.id.log_entry_listview);
 		TextView noHistory = (TextView) balloonLayout
