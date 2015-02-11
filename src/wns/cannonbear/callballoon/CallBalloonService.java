@@ -10,7 +10,10 @@ import wns.cannonbear.callballoon.model.LogBean;
 import wns.cannonbear.callballoon.model.MessageLogEntry;
 import wns.cannonbear.callballoon.preference.PreferenceBean;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
@@ -21,7 +24,6 @@ import android.provider.CallLog;
 import android.provider.Telephony.TextBasedSmsColumns;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -39,6 +41,15 @@ public class CallBalloonService extends Service {
 	private Point screen = new Point();
 	private PreferenceBean pref;
 
+	private String incomingNumber;
+
+	@Override
+	public void onCreate() {
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
+		this.registerReceiver(orientationChangeReceiver, filter);
+	}
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent == null) {
@@ -48,7 +59,7 @@ public class CallBalloonService extends Service {
 		pref = new PreferenceBean(getApplicationContext());
 		Log.d(Const.TAG, "Preference: " + pref.toString());
 
-		String incomingNumber = intent.getStringExtra(Const.INCOMING_NUMBER);
+		incomingNumber = intent.getStringExtra(Const.INCOMING_NUMBER);
 		Log.d(Const.TAG, "Incoming number: " + incomingNumber);
 
 		LogBean logBean = new LogBean(pref, incomingNumber);
@@ -94,7 +105,7 @@ public class CallBalloonService extends Service {
 
 		removeLayout = (RelativeLayout) inflater.inflate(
 				R.layout.remove_layout, null);
-		removeLayout.setVisibility(View.GONE);
+		showRemoveLayout(false);
 
 		windowManager.addView(removeLayout, params);
 	}
@@ -200,11 +211,14 @@ public class CallBalloonService extends Service {
 		params.y = 0;
 
 		balloonLayout = new BalloonLayout(getApplicationContext(), null);
+		balloonLayout.setOnTouchListener(onBalloonTouch);
+
 		ListView listView = (ListView) balloonLayout
 				.findViewById(R.id.log_entry_listview);
 		TextView noHistory = (TextView) balloonLayout
 				.findViewById(R.id.log_entry_no_listview);
 
+		// Update call log history
 		if (logBean.getLogs().length > 0) {
 			CallBalloonAdapter adapter = new CallBalloonAdapter(
 					getApplicationContext(), logBean.getLogs());
@@ -216,6 +230,7 @@ public class CallBalloonService extends Service {
 			noHistory.setVisibility(View.VISIBLE);
 		}
 
+		// Update textview
 		LinearLayout countLayout = (LinearLayout) balloonLayout
 				.findViewById(R.id.count_layout);
 		TextView incomingCount = (TextView) countLayout
@@ -236,32 +251,39 @@ public class CallBalloonService extends Service {
 		outgoingMsgCount.setText(pref.isUseSMS() ? String.valueOf(logBean
 				.getMsgCountOutgoing()) : Const.COUNT_UNKNOWN);
 
-		balloonLayout.setVisibility(View.GONE);
+		showBalloonLayout(false);
 
-		balloonLayout.setOnTouchListener(onBalloonTouch);
 		windowManager.addView(balloonLayout, params);
 	}
 
-	private void onClick() {
-		if (balloonLayout.getVisibility() != View.VISIBLE) {
+	private void showBalloonLayout(boolean isShow) {
+		if (isShow && balloonLayout.getVisibility() != View.VISIBLE) {
 			balloonLayout.setVisibility(View.VISIBLE);
-		} else {
+		} else if (!isShow) {
 			balloonLayout.setVisibility(View.GONE);
 		}
-
 	}
 
-	private void showRemoveLayout() {
-		WindowManager.LayoutParams paramRemove = (WindowManager.LayoutParams) removeLayout
-				.getLayoutParams();
-		int posX = (screen.x - removeLayout.getWidth()) / 2;
-		int posY = screen.y - (removeLayout.getHeight() + getStatusBarHeight());
+	private void showRemoveLayout(boolean isShow) {
+		if (isShow && (removeLayout.getVisibility() != View.VISIBLE)) {
+			WindowManager.LayoutParams paramRemove = (WindowManager.LayoutParams) removeLayout
+					.getLayoutParams();
+			int posX = (screen.x - removeLayout.getWidth()) / 2;
+			int posY = screen.y
+					- (removeLayout.getHeight() + getStatusBarHeight());
 
-		paramRemove.x = posX;
-		paramRemove.y = posY;
-		removeLayout.setVisibility(View.VISIBLE);
+			paramRemove.x = posX;
+			paramRemove.y = posY;
+			removeLayout.setVisibility(View.VISIBLE);
 
-		windowManager.updateViewLayout(removeLayout, paramRemove);
+			windowManager.updateViewLayout(removeLayout, paramRemove);
+		} else if (!isShow) {
+			removeLayout.setVisibility(View.GONE);
+		}
+	}
+
+	private void onClick() {
+		showBalloonLayout(balloonLayout.getVisibility() != View.VISIBLE);
 	}
 
 	private void clearLayouts() {
@@ -283,13 +305,10 @@ public class CallBalloonService extends Service {
 
 	@Override
 	public void onDestroy() {
-		super.onDestroy();
-		clearLayouts();
-	}
+		this.unregisterReceiver(orientationChangeReceiver);
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
+		clearLayouts();
+		super.onDestroy();
 	}
 
 	private LogBean getMessageLogs(LogBean logBean, String incomingNumber) {
@@ -364,10 +383,6 @@ public class CallBalloonService extends Service {
 		return rtnVal;
 	}
 
-	private void hideBalloonLayout() {
-		balloonLayout.setVisibility(View.GONE);
-	}
-
 	View.OnTouchListener onBalloonTouch = new View.OnTouchListener() {
 
 		@Override
@@ -389,7 +404,7 @@ public class CallBalloonService extends Service {
 						&& event.getRawX() <= balloonContentLayout.getRight()
 						&& event.getRawY() >= balloonContentLayout.getTop() && event
 						.getRawY() <= balloonContentLayout.getBottom())) {
-					hideBalloonLayout();
+					showBalloonLayout(false);
 				}
 
 				break;
@@ -423,22 +438,20 @@ public class CallBalloonService extends Service {
 						.getLongTouchDelay()) {
 					isDragged = moveView(event, params, false);
 
-					if (removeLayout.getVisibility() != View.VISIBLE) {
-						showRemoveLayout();
-					}
+					showRemoveLayout(true);
 
 					if (isOnRemove = isOverRemoveLayout(event, params)) {
 						placeOnRemoveLayout(params);
 					}
 
 					if (isDragged) {
-						hideBalloonLayout();
+						showBalloonLayout(false);
 					}
 				}
 
 				break;
 			case MotionEvent.ACTION_UP:
-				removeLayout.setVisibility(View.GONE);
+				showRemoveLayout(false);
 
 				if (isDragged) {
 					if (isOnRemove) {
@@ -447,7 +460,7 @@ public class CallBalloonService extends Service {
 					} else {
 						// Move by drag
 						resetPosition(params.x);
-						hideBalloonLayout();
+						showBalloonLayout(false);
 					}
 				} else {
 					// Click
@@ -522,6 +535,24 @@ public class CallBalloonService extends Service {
 			}
 		}
 
+	};
+
+	@Override
+	public IBinder onBind(Intent intent) {
+		return null;
+	}
+
+	private BroadcastReceiver orientationChangeReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(Intent.ACTION_CONFIGURATION_CHANGED)) {
+				// orientation is changed
+				Intent serviceIntent = new Intent(context,
+						CallBalloonService.class);
+				serviceIntent.putExtra(Const.INCOMING_NUMBER, incomingNumber);
+				context.startService(serviceIntent);
+			}
+		}
 	};
 
 }
