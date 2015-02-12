@@ -9,7 +9,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="20"
+        android:layout_weight="10"
         android:background="#00000000" >
     </RelativeLayout>
 
@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="5dp"
-        android:layout_weight="60"
+        android:layout_weight="80"
         android:background="@drawable/layout_bg_rounded"
         android:gravity="center"
         android:orientation="vertical"
@@ -200,7 +200,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="20"
+        android:layout_weight="10"
         android:background="#00000000" >
     </RelativeLayout>
 
