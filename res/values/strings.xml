@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Call Balloon</string>
+    <string name="app_name">Call History</string>
     <string name="hello_world">Hello world!</string>
     <string name="listview_header">Call Logs</string>
     <string name="no_history">No History</string>
