@@ -9,6 +9,7 @@ import wns.cannonbear.callballoon.model.CallLogEntry;
 import wns.cannonbear.callballoon.model.LogBean;
 import wns.cannonbear.callballoon.model.MessageLogEntry;
 import wns.cannonbear.callballoon.preference.PreferenceBean;
+import android.app.SearchManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,6 +30,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -250,6 +252,25 @@ public class CallBalloonService extends Service {
 				.findViewById(R.id.txt_msg_outgoing);
 		outgoingMsgCount.setText(pref.isUseSMS() ? String.valueOf(logBean
 				.getMsgCountOutgoing()) : Const.COUNT_UNKNOWN);
+
+		// Set click listener
+		Button btnSearchWeb = (Button) balloonLayout
+				.findViewById(R.id.btn_search_web);
+		final String num = this.incomingNumber;
+		final View.OnClickListener btnSearchWebClickListener = new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showBalloonLayout(false);
+				showRemoveLayout(false);
+
+				Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				String keyword = num;
+				intent.putExtra(SearchManager.QUERY, keyword);
+				startActivity(intent);
+			}
+		};
+		btnSearchWeb.setOnClickListener(btnSearchWebClickListener);
 
 		showBalloonLayout(false);
 
