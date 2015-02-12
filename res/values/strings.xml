@@ -12,6 +12,7 @@
     <string name="failed">Failed</string>
     <string name="unit_ms">ms</string>
     <string name="confirmation">Are you sure?</string>
+    <string name="searchweb">Search Web</string>
 
     <!-- Pref related -->
     <string name="pref_general_settings">General Settings</string>

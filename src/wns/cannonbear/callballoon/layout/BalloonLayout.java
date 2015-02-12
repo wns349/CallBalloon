@@ -5,9 +5,9 @@ import android.content.Context;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
-public class BalloonLayout extends LinearLayout {
+public class BalloonLayout extends RelativeLayout {
 
 	public BalloonLayout(Context context, ViewGroup root) {
 		super(context);
