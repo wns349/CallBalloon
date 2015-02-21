@@ -2,6 +2,7 @@ package wns.cannonbear.callballoon.preference;
 
 import wns.cannonbear.callballoon.CallBalloonService;
 import wns.cannonbear.callballoon.Const;
+import wns.cannonbear.callballoon.R;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,7 +35,8 @@ public class DemoPreference extends DialogPreference {
 		edtIncomingNumber = new EditText(getContext());
 		edtIncomingNumber.setLayoutParams(layoutParams);
 
-		edtIncomingNumber.setHint("Enter Incoming Number");
+		edtIncomingNumber.setHint(getContext().getText(
+				R.string.hint_incoming_number));
 
 		FrameLayout dialogView = new FrameLayout(getContext());
 		dialogView.addView(edtIncomingNumber);
