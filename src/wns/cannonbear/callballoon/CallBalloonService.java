@@ -19,6 +19,7 @@ import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.provider.CallLog;
@@ -64,28 +65,20 @@ public class CallBalloonService extends Service {
 		incomingNumber = intent.getStringExtra(Const.INCOMING_NUMBER);
 		Log.d(Const.TAG, "Incoming number: " + incomingNumber);
 
-		LogBean logBean = new LogBean(pref, incomingNumber);
-
-		getCallLogs(logBean, incomingNumber);
-
-		if (pref.isUseSMS()) {
-			getMessageLogs(logBean, incomingNumber);
-		}
-
-		startChathead(logBean);
+		startChathead();
 
 		return super.onStartCommand(intent, flags, startId);
 	}
 
-	private void startChathead(LogBean logBean) {
+	private void startChathead() {
 		windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 		windowManager.getDefaultDisplay().getSize(screen);
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 
 		clearLayouts();
 
-		// Listview
-		addBalloonLayout(inflater, logBean);
+		// Balloon Layout
+		addBalloonLayout(inflater);
 
 		// Remove
 		addRemoveLayout(inflater);
@@ -201,7 +194,7 @@ public class CallBalloonService extends Service {
 		return statusBarHeight;
 	}
 
-	private void addBalloonLayout(LayoutInflater inflater, LogBean logBean) {
+	private void addBalloonLayout(LayoutInflater inflater) {
 		final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
 				WindowManager.LayoutParams.MATCH_PARENT,
 				WindowManager.LayoutParams.MATCH_PARENT,
@@ -215,62 +208,15 @@ public class CallBalloonService extends Service {
 		balloonLayout = new BalloonLayout(getApplicationContext(), null);
 		balloonLayout.setOnTouchListener(onBalloonTouch);
 
-		ListView listView = (ListView) balloonLayout
-				.findViewById(R.id.log_entry_listview);
-		TextView noHistory = (TextView) balloonLayout
-				.findViewById(R.id.log_entry_no_listview);
+		View loadingLayout = balloonLayout
+				.findViewById(R.id.balloon_content_layout_loading);
+		View contentLayout = balloonLayout
+				.findViewById(R.id.balloon_content_layout);
+		loadingLayout.setVisibility(View.VISIBLE);
+		contentLayout.setVisibility(View.GONE);
 
-		// Update call log history
-		if (logBean.getLogs().length > 0) {
-			CallBalloonAdapter adapter = new CallBalloonAdapter(
-					getApplicationContext(), logBean.getLogs());
-			listView.setAdapter(adapter);
-			listView.setVisibility(View.VISIBLE);
-			noHistory.setVisibility(View.GONE);
-		} else {
-			listView.setVisibility(View.GONE);
-			noHistory.setVisibility(View.VISIBLE);
-		}
-
-		// Update textview
-		LinearLayout countLayout = (LinearLayout) balloonLayout
-				.findViewById(R.id.count_layout);
-		TextView incomingCount = (TextView) countLayout
-				.findViewById(R.id.txt_incoming);
-		incomingCount.setText(String.valueOf(logBean.getCallCountIncoming()));
-		TextView outgoingCount = (TextView) countLayout
-				.findViewById(R.id.txt_outgoing);
-		outgoingCount.setText(String.valueOf(logBean.getCallCountOutgoing()));
-		TextView missedCount = (TextView) countLayout
-				.findViewById(R.id.txt_missed);
-		missedCount.setText(String.valueOf(logBean.getCallCountMissed()));
-		TextView incomingMsgCount = (TextView) countLayout
-				.findViewById(R.id.txt_msg_incoming);
-		incomingMsgCount.setText(pref.isUseSMS() ? String.valueOf(logBean
-				.getMsgCountIncoming()) : Const.COUNT_UNKNOWN);
-		TextView outgoingMsgCount = (TextView) countLayout
-				.findViewById(R.id.txt_msg_outgoing);
-		outgoingMsgCount.setText(pref.isUseSMS() ? String.valueOf(logBean
-				.getMsgCountOutgoing()) : Const.COUNT_UNKNOWN);
-
-		// Set click listener
-		Button btnSearchWeb = (Button) balloonLayout
-				.findViewById(R.id.btn_search_web);
-		final String num = this.incomingNumber;
-		final View.OnClickListener btnSearchWebClickListener = new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				showBalloonLayout(false);
-				showRemoveLayout(false);
-
-				Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				String keyword = num;
-				intent.putExtra(SearchManager.QUERY, keyword);
-				startActivity(intent);
-			}
-		};
-		btnSearchWeb.setOnClickListener(btnSearchWebClickListener);
+		new LoadLogBeanTask()
+				.execute(new View[] { loadingLayout, contentLayout });
 
 		showBalloonLayout(false);
 
@@ -303,7 +249,7 @@ public class CallBalloonService extends Service {
 		}
 	}
 
-	private void onClick() {
+	private void onChatHeadClick() {
 		showBalloonLayout(balloonLayout.getVisibility() != View.VISIBLE);
 	}
 
@@ -485,7 +431,7 @@ public class CallBalloonService extends Service {
 					}
 				} else {
 					// Click
-					onClick();
+					onChatHeadClick();
 				}
 
 				isDragged = false;
@@ -576,4 +522,90 @@ public class CallBalloonService extends Service {
 		}
 	};
 
+	class LoadLogBeanTask extends AsyncTask<View, Void, LogBean> {
+		View loadingLayout;
+		View contentLayout;
+
+		@Override
+		protected LogBean doInBackground(View... params) {
+			loadingLayout = params[0];
+			contentLayout = params[1];
+
+			LogBean logBean = new LogBean(pref, incomingNumber);
+
+			getCallLogs(logBean, incomingNumber);
+
+			if (pref.isUseSMS()) {
+				getMessageLogs(logBean, incomingNumber);
+			}
+
+			return logBean;
+		}
+
+		@Override
+		protected void onPostExecute(LogBean logBean) {
+			ListView listView = (ListView) balloonLayout
+					.findViewById(R.id.log_entry_listview);
+			TextView noHistory = (TextView) balloonLayout
+					.findViewById(R.id.log_entry_no_listview);
+
+			// Update call log history
+			if (logBean.getLogs().length > 0) {
+				CallBalloonAdapter adapter = new CallBalloonAdapter(
+						getApplicationContext(), logBean.getLogs());
+				listView.setAdapter(adapter);
+				listView.setVisibility(View.VISIBLE);
+				noHistory.setVisibility(View.GONE);
+			} else {
+				listView.setVisibility(View.GONE);
+				noHistory.setVisibility(View.VISIBLE);
+			}
+
+			// Update textview
+			LinearLayout countLayout = (LinearLayout) balloonLayout
+					.findViewById(R.id.count_layout);
+			TextView incomingCount = (TextView) countLayout
+					.findViewById(R.id.txt_incoming);
+			incomingCount
+					.setText(String.valueOf(logBean.getCallCountIncoming()));
+			TextView outgoingCount = (TextView) countLayout
+					.findViewById(R.id.txt_outgoing);
+			outgoingCount
+					.setText(String.valueOf(logBean.getCallCountOutgoing()));
+			TextView missedCount = (TextView) countLayout
+					.findViewById(R.id.txt_missed);
+			missedCount.setText(String.valueOf(logBean.getCallCountMissed()));
+			TextView incomingMsgCount = (TextView) countLayout
+					.findViewById(R.id.txt_msg_incoming);
+			incomingMsgCount.setText(pref.isUseSMS() ? String.valueOf(logBean
+					.getMsgCountIncoming()) : Const.COUNT_UNKNOWN);
+			TextView outgoingMsgCount = (TextView) countLayout
+					.findViewById(R.id.txt_msg_outgoing);
+			outgoingMsgCount.setText(pref.isUseSMS() ? String.valueOf(logBean
+					.getMsgCountOutgoing()) : Const.COUNT_UNKNOWN);
+
+			// Set click listener
+			Button btnSearchWeb = (Button) balloonLayout
+					.findViewById(R.id.btn_search_web);
+			final String num = incomingNumber;
+			final View.OnClickListener btnSearchWebClickListener = new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					showBalloonLayout(false);
+					showRemoveLayout(false);
+
+					Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					String keyword = num;
+					intent.putExtra(SearchManager.QUERY, keyword);
+					startActivity(intent);
+				}
+			};
+			btnSearchWeb.setOnClickListener(btnSearchWebClickListener);
+
+			loadingLayout.setVisibility(View.GONE);
+			contentLayout.setVisibility(View.VISIBLE);
+		}
+
+	}
 }
