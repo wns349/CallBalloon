@@ -44,6 +44,8 @@ public class CallBalloonService extends Service {
 	private Point screen = new Point();
 	private PreferenceBean pref;
 
+	private LoadLogBeanTask loadLogBeanTask;
+
 	private String incomingNumber;
 
 	@Override
@@ -215,8 +217,8 @@ public class CallBalloonService extends Service {
 		loadingLayout.setVisibility(View.VISIBLE);
 		contentLayout.setVisibility(View.GONE);
 
-		new LoadLogBeanTask()
-				.execute(new View[] { loadingLayout, contentLayout });
+		loadLogBeanTask = new LoadLogBeanTask();
+		loadLogBeanTask.execute(new View[] { loadingLayout, contentLayout });
 
 		showBalloonLayout(false);
 
@@ -274,8 +276,20 @@ public class CallBalloonService extends Service {
 	public void onDestroy() {
 		this.unregisterReceiver(orientationChangeReceiver);
 
+		stopLoadLogBeanTask();
 		clearLayouts();
 		super.onDestroy();
+	}
+
+	private void stopLoadLogBeanTask() {
+		try {
+			if (loadLogBeanTask != null
+					&& loadLogBeanTask.getStatus() != AsyncTask.Status.FINISHED) {
+				loadLogBeanTask.cancel(true);
+			}
+		} catch (Exception e) {
+			Log.e(Const.TAG, e.getMessage(), e);
+		}
 	}
 
 	private LogBean getMessageLogs(LogBean logBean, String incomingNumber) {
